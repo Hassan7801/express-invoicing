@@ -1,0 +1,17 @@
+.o_express_dashboard {
+    height: 100%;
+    overflow: auto;
+    background: var(--o-view-background-color, #f8f9fa);
+
+    .o_express_tile {
+        cursor: pointer;
+    }
+
+    .o_express_tile:hover {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+    }
+
+    .o_express_chart {
+        height: 220px;
+    }
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+    <record id="res_partner_corner_shop" model="res.partner">
+        <field name="name">Corner Shop</field>
+        <field name="is_company">True</field>
+        <field name="customer_rank">1</field>
+    </record>
+
+    <record id="product_category_goods" model="product.category">
+        <field name="name">Express Goods</field>
+    </record>
+
+    <record id="product_flour" model="product.product">
+        <field name="name">White Flour 1kg</field>
+        <field name="categ_id" ref="product_category_goods"/>
+        <field name="type">consu</field>
+        <field name="is_storable">True</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">True</field>
+        <field name="list_price">4.5</field>
+        <field name="standard_price">2.2</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="tracking">lot</field>
+        <field name="use_expiration_date">True</field>
+        <field name="expiration_time">180</field>
+        <field name="use_time">30</field>
+        <field name="alert_time">15</field>
+    </record>
+
+    <record id="product_paracetamol" model="product.product">
+        <field name="name">Paracetamol 500mg</field>
+        <field name="categ_id" ref="product_category_goods"/>
+        <field name="type">consu</field>
+        <field name="is_storable">True</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">True</field>
+        <field name="list_price">1.8</field>
+        <field name="standard_price">0.6</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="tracking">serial</field>
+        <field name="use_expiration_date">True</field>
+        <field name="expiration_time">365</field>
+        <field name="alert_time">30</field>
+    </record>
+
+    <record id="product_oil" model="product.product">
+        <field name="name">Sunflower Oil 1L</field>
+        <field name="categ_id" ref="product_category_goods"/>
+        <field name="type">consu</field>
+        <field name="is_storable">True</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">True</field>
+        <field name="list_price">3.2</field>
+        <field name="standard_price">1.5</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="tracking">none</field>
+    </record>
+
+    <record id="product_bag" model="product.product">
+        <field name="name">Paper Bag</field>
+        <field name="categ_id" ref="product_category_goods"/>
+        <field name="type">consu</field>
+        <field name="is_storable">False</field>
+        <field name="sale_ok">True</field>
+        <field name="list_price">0.2</field>
+        <field name="standard_price">0.05</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="tracking">none</field>
+    </record>
+
+    <record id="product_delivery_fee" model="product.product">
+        <field name="name">Same-day Drop-off</field>
+        <field name="categ_id" ref="product_category_goods"/>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+        <field name="list_price">6.0</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+    </record>
+
+    <record id="lot_flour_ok" model="stock.lot">
+        <field name="name">FLOUR-OK-2026</field>
+        <field name="product_id" ref="product_flour"/>
+        <field name="expiration_date" eval="(datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="lot_flour_soon" model="stock.lot">
+        <field name="name">FLOUR-SOON-2026</field>
+        <field name="product_id" ref="product_flour"/>
+        <field name="expiration_date" eval="(datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="lot_flour_expired" model="stock.lot">
+        <field name="name">FLOUR-EXPIRED-2024</field>
+        <field name="product_id" ref="product_flour"/>
+        <field name="expiration_date" eval="(datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="lot_para_1" model="stock.lot">
+        <field name="name">PARA-SN-001</field>
+        <field name="product_id" ref="product_paracetamol"/>
+        <field name="expiration_date" eval="(datetime.now() + timedelta(days=200)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="lot_para_2" model="stock.lot">
+        <field name="name">PARA-SN-002</field>
+        <field name="product_id" ref="product_paracetamol"/>
+        <field name="expiration_date" eval="(datetime.now() + timedelta(days=200)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="quant_flour_ok" model="stock.quant">
+        <field name="product_id" ref="product_flour"/>
+        <field name="lot_id" ref="lot_flour_ok"/>
+        <field name="inventory_quantity">100</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+    <record id="quant_flour_soon" model="stock.quant">
+        <field name="product_id" ref="product_flour"/>
+        <field name="lot_id" ref="lot_flour_soon"/>
+        <field name="inventory_quantity">25</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+    <record id="quant_flour_expired" model="stock.quant">
+        <field name="product_id" ref="product_flour"/>
+        <field name="lot_id" ref="lot_flour_expired"/>
+        <field name="inventory_quantity">20</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+    <record id="quant_para_1" model="stock.quant">
+        <field name="product_id" ref="product_paracetamol"/>
+        <field name="lot_id" ref="lot_para_1"/>
+        <field name="inventory_quantity">1</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+    <record id="quant_para_2" model="stock.quant">
+        <field name="product_id" ref="product_paracetamol"/>
+        <field name="lot_id" ref="lot_para_2"/>
+        <field name="inventory_quantity">1</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+    <record id="quant_oil" model="stock.quant">
+        <field name="product_id" ref="product_oil"/>
+        <field name="inventory_quantity">8</field>
+        <field name="location_id" model="stock.location" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).lot_stock_id.id"/>
+    </record>
+
+    <function model="stock.quant" name="action_apply_inventory">
+        <function model="stock.quant" name="search" eval="[[('id', 'in', [
+            ref('quant_flour_ok'),
+            ref('quant_flour_soon'),
+            ref('quant_flour_expired'),
+            ref('quant_para_1'),
+            ref('quant_para_2'),
+            ref('quant_oil'),
+        ])]]"/>
+    </function>
+
+    <record id="orderpoint_flour" model="stock.warehouse.orderpoint">
+        <field name="product_id" ref="product_flour"/>
+        <field name="product_min_qty">200</field>
+        <field name="product_max_qty">400</field>
+        <field name="warehouse_id" model="stock.warehouse" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).id"/>
+    </record>
+    <record id="orderpoint_oil" model="stock.warehouse.orderpoint">
+        <field name="product_id" ref="product_oil"/>
+        <field name="product_min_qty">50</field>
+        <field name="product_max_qty">100</field>
+        <field name="warehouse_id" model="stock.warehouse" eval="obj().env['stock.warehouse'].search([('company_id', '=', obj().env.company.id)], limit=1).id"/>
+    </record>
+    </data>
+</odoo>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="express_invoicing.Dashboard">
+        <div class="o_express_dashboard h-100 overflow-auto">
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Morning Board</h3>
+                    <div class="btn-group" role="group">
+                        <t t-foreach="periods" t-as="period" t-key="period.id">
+                            <button type="button"
+                                    class="btn"
+                                    t-att-class="state.period === period.id ? 'btn-primary' : 'btn-secondary'"
+                                    t-on-click="() => this.setPeriod(period.id)">
+                                <t t-esc="period.label"/>
+                            </button>
+                        </t>
+                    </div>
+                </div>
+                <div t-if="state.loading" class="d-flex justify-content-center align-items-center py-5">
+                    <i class="fa fa-circle-o-notch fa-spin fa-2x text-muted"/>
+                </div>
+                <t t-else="">
+                    <div t-if="!state.data.has_invoices" class="alert alert-info mb-3">
+                        No posted customer invoices in this period. Tiles stay at zero until something is confirmed.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('invoices')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Invoiced</div>
+                                    <div class="fs-3 fw-bold" t-esc="this.formatMoney(state.data.invoice_total)"/>
+                                    <div class="text-muted" t-esc="(state.data.invoice_count or 0) + ' invoices'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('express')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Express invoices</div>
+                                    <div class="fs-3 fw-bold" t-esc="state.data.express_count"/>
+                                    <div class="text-muted">from invoice confirm</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('normal')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Standard invoices</div>
+                                    <div class="fs-3 fw-bold" t-esc="state.data.normal_count"/>
+                                    <div class="text-muted">created from a sales order</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('open_deliveries')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Deliveries still open</div>
+                                    <div class="fs-3 fw-bold" t-esc="state.data.open_delivery_count"/>
+                                    <div class="text-muted" t-esc="(state.data.delivery_count or 0) + ' generated'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('out_of_stock')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Stock value</div>
+                                    <div class="fs-3 fw-bold" t-esc="this.formatMoney(state.data.stock_value)"/>
+                                    <div class="text-muted" t-esc="(state.data.out_of_stock_count or 0) + ' products out of stock'"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('below_reorder')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Below reorder point</div>
+                                    <div class="fs-3 fw-bold" t-esc="state.data.below_reorder_count"/>
+                                    <div class="text-muted">replenishment rules</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="o_express_tile card h-100" t-on-click="() => this.openAction('expiring_lots')">
+                                <div class="card-body">
+                                    <div class="text-muted text-uppercase small">Lots expiring in 30 days</div>
+                                    <div class="fs-3 fw-bold" t-esc="state.data.expiring_lot_count"/>
+                                    <div class="text-muted">still in stock</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-12 col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Top products by quantity</h5>
+                                    <div t-if="!(state.data.top_qty || []).length" class="text-muted py-4">Nothing sold in this period.</div>
+                                    <ul t-else="" class="list-group list-group-flush">
+                                        <li t-foreach="state.data.top_qty" t-as="row" t-key="row.id"
+                                            class="list-group-item d-flex justify-content-between o_express_tile"
+                                            t-on-click="() => this.openProduct(row.id)">
+                                            <span t-esc="row.name"/>
+                                            <span t-esc="this.formatQty(row.qty)"/>
+                                        </li>
+                                    </ul>
+                                    <div class="o_express_chart mt-3">
+                                        <canvas t-ref="chart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Top products by value</h5>
+                                    <div t-if="!(state.data.top_value || []).length" class="text-muted py-4">Nothing sold in this period.</div>
+                                    <ul t-else="" class="list-group list-group-flush">
+                                        <li t-foreach="state.data.top_value" t-as="row" t-key="row.id"
+                                            class="list-group-item d-flex justify-content-between o_express_tile"
+                                            t-on-click="() => this.openProduct(row.id)">
+                                            <span t-esc="row.name"/>
+                                            <span t-esc="this.formatMoney(row.value)"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>
